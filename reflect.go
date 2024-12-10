@@ -426,7 +426,9 @@ func (r *Reflector) reflectMap(definitions Definitions, t reflect.Type, st *Sche
 		return
 	}
 	if t.Elem().Kind() != reflect.Interface {
-		st.AdditionalProperties = r.refOrReflectTypeToSchema(definitions, t.Elem())
+		st.PatternProperties = map[string]*Schema{
+			".{1,}": r.refOrReflectTypeToSchema(definitions, t.Elem()),
+		}
 	}
 }
 
@@ -646,6 +648,9 @@ func (t *Schema) genericKeywords(tags []string, parent *Schema, propertyName str
 				t.Type = val
 			case "anchor":
 				t.Anchor = val
+			case "ref":
+				t.Ref = val
+				t.Type = ""
 			case "oneof_required":
 				var typeFound *Schema
 				for i := range parent.OneOf {
